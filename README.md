@@ -39,28 +39,45 @@ To connect the live AWS Inventory service, provide your AWS environment variable
 
 *(If `ansible-playbook` is not detected in your server's runtime block, the custom Ansible executor will fall back to executing a deterministic simulated playbook task stream.)*
 
-## Using Playbooks Locally
+## Execution Workflow (Running Playbooks against AWS)
 
-You can leverage the `.yml` playbook files included in this repository directly from your command line using the standard `ansible-playbook` CLI tool. Ensure you are in the root of the project:
+To successfully leverage the playbooks included in this repository and target your AWS infrastructure, **you must execute them in a specific order.**
+
+### Step 1: Provision Infrastructure (Bootstrapping)
+If you do not already have live EC2 instances running, you must provision them first. The deployment and maintenance playbooks (`deploy_web.yml`, `patch_os.yml`, `db_backup.yml`) will fail if their target hosts do not exist.
+
+You can provision your environment using the included Ansible playbook, which interacts with AWS APIs to stand up the network and instances:
+```bash
+# This runs locally and creates VPCs, Subnets, and EC2 instances in your AWS account
+ansible-playbook src/playbooks/provision_aws.yml
+```
+*(Note: Ensure your `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` are exported in your terminal environment before running this).*
+
+Once provisioned, the Ansible Hub UI's **AWS Inventory** tab will automatically discover and display these new resources.
+
+### Step 2: Setup your AWS Inventory
+To run subsequent playbooks against your newly created EC2 instances, Ansible needs to know how to connect to them. You can manage this by either:
+1. **Using an AWS Dynamic Inventory Plugin** (e.g., configuring an `aws_ec2.yml` file) so Ansible queries AWS automatically for running instances based on tags.
+2. **Using a Static Inventory File** by retrieving the IP addresses directly from the Ansible Hub UI and placing them in a local `inventory.ini` file:
+   ```ini
+   [webservers]
+   54.123.45.67 # public IP
+   54.123.45.68 # public IP
+
+   [db_servers]
+   10.0.2.20 ansible_ssh_common_args='...bastion setup...' # private IP
+   ```
+
+### Step 3: Configure and Deploy
+After your instances are running and your inventory is configured, you can run the configuration playbooks to install software, deploy code, or execute maintenance. 
 
 ```bash
-# Execute the AWS provisioning playbook (runs locally)
-ansible-playbook src/playbooks/provision_aws.yml
+# Deploy the web app to EC2 instances labeled under 'webservers' in your inventory
+ansible-playbook -i inventory.ini src/playbooks/deploy_web.yml --private-key=/path/to/aws-key.pem -u ubuntu
 
-# Execute the web application deployment against a distinct inventory
-ansible-playbook -i ./my_inventory.ini src/playbooks/deploy_web.yml
+# Perform database backups on EC2 instances labeled under 'db_servers'
+ansible-playbook -i inventory.ini src/playbooks/db_backup.yml --private-key=/path/to/aws-key.pem -u ubuntu
+
+# Run rolling security patches across all inventory instances
+ansible-playbook -i inventory.ini src/playbooks/patch_os.yml --private-key=/path/to/aws-key.pem -u ubuntu
 ```
-
-Ensure your SSH keys, `ansible.cfg`, and target hosts are appropriately configured before executing playbooks against remote machines.
-
-## Deploying AWS Resources (Bootstrapping)
-
-If you plan to run playbooks that target remote EC2 servers (such as `deploy_web.yml`, `db_backup.yml`, or `patch_os.yml`), you must have live AWS EC2 instances running within your environment first. You have two options to deploy this initial infrastructure:
-
-1. **Using the Included Ansible Playbook:** First run the included `provision_aws.yml` locally. It uses `ec2` modules to spin up default VPC configurations, subnets, and EC2 instances:
-   ```bash
-   ansible-playbook src/playbooks/provision_aws.yml
-   ```
-2. **Using External Tools:** You can deploy your AWS instances manually via the AWS Management Console, or through Infrastructure-as-Code tools like Terraform or AWS CDK. 
-
-Once your resources exist in AWS, the Ansible Hub UI's **AWS Inventory** tab will automatically discover and display them (via dynamic `DescribeInstances` API calls), provided your `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` are configured.
