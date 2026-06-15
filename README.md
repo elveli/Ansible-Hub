@@ -68,7 +68,7 @@ Instead of copying IP addresses manually, Ansible can fetch them directly from A
 1. Create a file named `aws_ec2.yml` in your project root.
 2. Add the following configuration to group instances by their AWS tags:
    ```yaml
-   plugin: aws_ec2
+   plugin: amazon.aws.aws_ec2
    regions:
      - us-east-1
    keyed_groups:
