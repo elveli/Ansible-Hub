@@ -16,6 +16,14 @@
         region: us-east-1
       register: vpc_facts
 
+    - name: Delete Security Group
+      amazon.aws.ec2_security_group:
+        name: webserver-sg
+        vpc_id: "{{ vpc_facts.vpcs[0].id }}"
+        state: absent
+        region: us-east-1
+      when: vpc_facts.vpcs | length > 0
+
     - name: Delete Subnet
       amazon.aws.ec2_vpc_subnet:
         vpc_id: "{{ vpc_facts.vpcs[0].id }}"

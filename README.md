@@ -107,14 +107,14 @@ If you prefer a simpler setup without a dynamic plugin, you can manually create 
 After your instances are running and your inventory is configured, you can run the configuration playbooks to install software, deploy code, or execute maintenance. 
 
 ```bash
-# Deploy the web app to EC2 instances labeled under 'webservers' in your inventory
-ansible-playbook -i <inventory_file> src/playbooks/deploy_web.yml --private-key=/path/to/aws-key.pem -u ubuntu
+# Execute the web application deployment against a distinct inventory
+ansible-playbook -i <inventory_file> src/playbooks/deploy_web.yml --private-key=/path/to/my-key.pem -u ubuntu
 
 # Perform database backups on EC2 instances labeled under 'db_servers'
-ansible-playbook -i <inventory_file> src/playbooks/db_backup.yml --private-key=/path/to/aws-key.pem -u ubuntu
+ansible-playbook -i <inventory_file> src/playbooks/db_backup.yml --private-key=/path/to/my-key.pem -u ubuntu
 
 # Run rolling security patches across all inventory instances
-ansible-playbook -i <inventory_file> src/playbooks/patch_os.yml --private-key=/path/to/aws-key.pem -u ubuntu
+ansible-playbook -i <inventory_file> src/playbooks/patch_os.yml --private-key=/path/to/my-key.pem -u ubuntu
 ```
 
 ### Step 4: Teardown Infrastructure (Cleanup)

@@ -14,14 +14,34 @@
         vpc_id: "{{ vpc.vpc.id }}"
         cidr: 10.0.1.0/24
         region: us-east-1
+        map_public_ip_on_launch: yes
+      register: subnet
+
+    - name: Create Security Group
+      amazon.aws.ec2_security_group:
+        name: webserver-sg
+        description: Web Security Group
+        vpc_id: "{{ vpc.vpc.id }}"
+        region: us-east-1
+        rules:
+          - proto: tcp
+            ports:
+              - 80
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            ports:
+              - 22
+            cidr_ip: 0.0.0.0/0
+      register: sg
 
     - name: Ensure exact count of EC2 instances
       amazon.aws.ec2_instance:
         key_name: my-key
         instance_type: t3.medium
-        image_id: ami-123456
+        image_id: ami-0c7217cdde317cfec
+        vpc_subnet_id: "{{ subnet.subnet.id }}"
+        security_group: "{{ sg.group_id }}"
         wait: yes
-        security_group: webserver
         exact_count: 2
         filters:
           "tag:Role": "webserver"
