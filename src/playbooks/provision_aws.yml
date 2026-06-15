@@ -14,7 +14,7 @@
         vpc_id: "{{ vpc.vpc.id }}"
         cidr: 10.0.1.0/24
         region: us-east-1
-        map_public_ip_on_launch: yes
+        map_public: yes
       register: subnet
 
     - name: Create Security Group
