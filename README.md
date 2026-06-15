@@ -77,8 +77,9 @@ Instead of copying IP addresses manually, Ansible can fetch them directly from A
    ```
 3. Run your playbook referencing this dynamic plugin:
    ```bash
-   ansible-playbook -i aws_ec2.yml src/playbooks/deploy_web.yml --private-key=/path/to/aws-key.pem -u ubuntu
+   ansible-playbook -i aws_ec2.yml src/playbooks/deploy_web.yml --private-key=/path/to/my-key.pem -u ubuntu
    ```
+   *(Note: With this setup, `aws_ec2.yml` acts as your inventory file. You do NOT need to create an `inventory.ini` file.)*
 
 **Option B: The Manual Way (Static Inventory File)**
 If you prefer a simpler setup without a dynamic plugin, you can manually create an inventory file using your instances' public IP addresses.
@@ -100,7 +101,7 @@ If you prefer a simpler setup without a dynamic plugin, you can manually create 
    ```
 3. Run your playbook referencing this static file:
    ```bash
-   ansible-playbook -i inventory.ini src/playbooks/deploy_web.yml --private-key=/path/to/aws-key.pem -u ubuntu
+   ansible-playbook -i inventory.ini src/playbooks/deploy_web.yml --private-key=/path/to/my-key.pem -u ubuntu
    ```
 
 ### Step 3: Configure and Deploy
