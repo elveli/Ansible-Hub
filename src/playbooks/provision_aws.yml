@@ -43,7 +43,7 @@
     - name: Save private key locally
       copy:
         content: "{{ key_pair.key.private_key }}"
-        dest: "./my-key.pem"
+        dest: "~/.ssh/my-key.pem"
         mode: "0600"
       when: key_pair.changed and key_pair.key.private_key is defined
 

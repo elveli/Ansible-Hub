@@ -17,7 +17,7 @@
 
     - name: Delete local private key file
       file:
-        path: "./my-key.pem"
+        path: "~/.ssh/my-key.pem"
         state: absent
 
     - name: Gather VPC facts
