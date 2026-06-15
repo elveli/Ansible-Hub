@@ -34,6 +34,19 @@
             cidr_ip: 0.0.0.0/0
       register: sg
 
+    - name: Create Key Pair
+      amazon.aws.ec2_key:
+        name: my-key
+        region: us-east-1
+      register: key_pair
+
+    - name: Save private key locally
+      copy:
+        content: "{{ key_pair.key.private_key }}"
+        dest: "./my-key.pem"
+        mode: "0600"
+      when: key_pair.changed and key_pair.key.private_key is defined
+
     - name: Ensure exact count of EC2 instances
       amazon.aws.ec2_instance:
         key_name: my-key
