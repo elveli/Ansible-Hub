@@ -43,7 +43,7 @@
 
     - name: Create Key Pair
       amazon.aws.ec2_key:
-        name: my-key
+        name: ansible-key
         region: us-east-1
         tags:
           ansible: "true"
@@ -52,13 +52,13 @@
     - name: Save private key locally
       copy:
         content: "{{ key_pair.key.private_key }}"
-        dest: "~/.ssh/my-key.pem"
+        dest: "~/.ssh/ansible-key.pem"
         mode: "0600"
       when: key_pair.changed and key_pair.key.private_key is defined
 
     - name: Ensure exact count of EC2 instances
       amazon.aws.ec2_instance:
-        key_name: my-key
+        key_name: ansible-key
         instance_type: t3.medium
         image_id: ami-0c7217cdde317cfec
         vpc_subnet_id: "{{ subnet.subnet.id }}"

@@ -12,13 +12,13 @@
 
     - name: Delete Key Pair
       amazon.aws.ec2_key:
-        name: my-key
+        name: ansible-key
         region: us-east-1
         state: absent
 
     - name: Delete local private key file
       file:
-        path: "~/.ssh/my-key.pem"
+        path: "~/.ssh/ansible-key.pem"
         state: absent
 
     - name: Gather VPC facts

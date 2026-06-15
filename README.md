@@ -77,7 +77,7 @@ Instead of copying IP addresses manually, Ansible can fetch them directly from A
    ```
 3. Run your playbook referencing this dynamic plugin:
    ```bash
-   ansible-playbook -i aws_ec2.yml src/playbooks/deploy_web.yml --private-key=~/.ssh/my-key.pem -u ubuntu
+   ansible-playbook -i aws_ec2.yml src/playbooks/deploy_web.yml --private-key=~/.ssh/ansible-key.pem -u ubuntu
    ```
    *(Note: With this setup, `aws_ec2.yml` acts as your inventory file. You do NOT need to create an `inventory.ini` file.)*
 
@@ -101,7 +101,7 @@ If you prefer a simpler setup without a dynamic plugin, you can manually create 
    ```
 3. Run your playbook referencing this static file:
    ```bash
-   ansible-playbook -i inventory.ini src/playbooks/deploy_web.yml --private-key=~/.ssh/my-key.pem -u ubuntu
+   ansible-playbook -i inventory.ini src/playbooks/deploy_web.yml --private-key=~/.ssh/ansible-key.pem -u ubuntu
    ```
 
 ### Viewing Provisioned AWS Resources via CLI
@@ -127,13 +127,13 @@ After your instances are running and your inventory is configured, you can run t
 
 ```bash
 # Execute the web application deployment against a distinct inventory
-ansible-playbook -i <inventory_file> src/playbooks/deploy_web.yml --private-key=~/.ssh/my-key.pem -u ubuntu
+ansible-playbook -i <inventory_file> src/playbooks/deploy_web.yml --private-key=~/.ssh/ansible-key.pem -u ubuntu
 
 # Perform database backups on EC2 instances labeled under 'db_servers'
-ansible-playbook -i <inventory_file> src/playbooks/db_backup.yml --private-key=~/.ssh/my-key.pem -u ubuntu
+ansible-playbook -i <inventory_file> src/playbooks/db_backup.yml --private-key=~/.ssh/ansible-key.pem -u ubuntu
 
 # Run rolling security patches across all inventory instances
-ansible-playbook -i <inventory_file> src/playbooks/patch_os.yml --private-key=~/.ssh/my-key.pem -u ubuntu
+ansible-playbook -i <inventory_file> src/playbooks/patch_os.yml --private-key=~/.ssh/ansible-key.pem -u ubuntu
 ```
 
 ### Step 4: Teardown Infrastructure (Cleanup)
