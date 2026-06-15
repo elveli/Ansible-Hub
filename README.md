@@ -116,3 +116,14 @@ ansible-playbook -i <inventory_file> src/playbooks/db_backup.yml --private-key=/
 # Run rolling security patches across all inventory instances
 ansible-playbook -i <inventory_file> src/playbooks/patch_os.yml --private-key=/path/to/aws-key.pem -u ubuntu
 ```
+
+### Step 4: Teardown Infrastructure (Cleanup)
+When you are finished testing and want to avoid ongoing AWS charges, you can gracefully terminate all the instances and delete the VPC resources you created in Step 1.
+
+We have included a teardown playbook, `teardown_aws.yml`, which automates this process:
+
+```bash
+# This playbook runs locally and removes the instances, subnet, and VPC.
+ansible-playbook src/playbooks/teardown_aws.yml
+```
+*(Note: As with provisioning, make sure your AWS credentials are appropriately exported before running this).*
