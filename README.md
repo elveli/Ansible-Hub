@@ -46,12 +46,17 @@ To successfully leverage the playbooks included in this repository and target yo
 ### Step 1: Provision Infrastructure (Bootstrapping)
 If you do not already have live EC2 instances running, you must provision them first. The deployment and maintenance playbooks (`deploy_web.yml`, `patch_os.yml`, `db_backup.yml`) will fail if their target hosts do not exist.
 
-You can provision your environment using the included Ansible playbook, which interacts with AWS APIs to stand up the network and instances:
+Before running the provisioning playbook, ensure you have the `amazon.aws` collection installed locally. You can install it via standard `ansible-galaxy`:
+```bash
+ansible-galaxy collection install amazon.aws
+```
+
+You can then provision your environment using the included Ansible playbook, which interacts with AWS APIs to stand up the network and instances:
 ```bash
 # This runs locally and creates VPCs, Subnets, and EC2 instances in your AWS account
 ansible-playbook src/playbooks/provision_aws.yml
 ```
-*(Note: Ensure your `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` are exported in your terminal environment before running this).*
+*(Note: Ensure you have `boto3` installed via pip, and your `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` are exported in your terminal environment before running this).*
 
 Once provisioned, the Ansible Hub UI's **AWS Inventory** tab will automatically discover and display these new resources.
 
