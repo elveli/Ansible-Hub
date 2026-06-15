@@ -55,17 +55,42 @@ ansible-playbook src/playbooks/provision_aws.yml
 
 Once provisioned, the Ansible Hub UI's **AWS Inventory** tab will automatically discover and display these new resources.
 
-### Step 2: Setup your AWS Inventory
-To run subsequent playbooks against your newly created EC2 instances, Ansible needs to know how to connect to them. You can manage this by either:
-1. **Using an AWS Dynamic Inventory Plugin** (e.g., configuring an `aws_ec2.yml` file) so Ansible queries AWS automatically for running instances based on tags.
-2. **Using a Static Inventory File** by retrieving the IP addresses directly from the Ansible Hub UI and placing them in a local `inventory.ini` file:
-   ```ini
-   [webservers]
-   54.123.45.67 # public IP
-   54.123.45.68 # public IP
+### Step 2: Define your Target Infrastructure (Inventory Setup)
+Once your EC2 instances exist, you must tell your Ansible playbooks *where* they live to execute commands on them. Ansible uses an "Inventory" to define target IPs and connection settings. You can accomplish this in two ways:
 
+**Option A: The Automated Way (AWS Dynamic Inventory Plugin)**
+Instead of copying IP addresses manually, Ansible can fetch them directly from AWS in real-time.
+1. Create a file named `aws_ec2.yml` in your project root.
+2. Add the following configuration to group instances by their AWS tags:
+   ```yaml
+   plugin: aws_ec2
+   regions:
+     - us-east-1
+   keyed_groups:
+     - key: tags.Role
+       prefix: role
+   ```
+3. Run your playbook referencing this dynamic plugin:
+   ```bash
+   ansible-playbook -i aws_ec2.yml src/playbooks/deploy_web.yml --private-key=/path/to/aws-key.pem -u ubuntu
+   ```
+
+**Option B: The Manual Way (Static Inventory File)**
+If you prefer a simpler setup without a dynamic plugin, you can manually copy the instance IP addresses shown in the **Ansible Hub UI > Inventory** tab.
+1. Create a plain text file named `inventory.ini` in your project root.
+2. Group the IP addresses under bracketed labels matching your playbook target hosts (e.g., `webservers`, `db_servers`), like this:
+   ```ini
+   # Add your EC2 public IP addresses under their respective groups
+   [webservers]
+   54.123.45.67
+   54.123.45.68
+   
    [db_servers]
-   10.0.2.20 ansible_ssh_common_args='...bastion setup...' # private IP
+   54.123.45.69
+   ```
+3. Run your playbook referencing this static file:
+   ```bash
+   ansible-playbook -i inventory.ini src/playbooks/deploy_web.yml --private-key=/path/to/aws-key.pem -u ubuntu
    ```
 
 ### Step 3: Configure and Deploy
@@ -73,11 +98,11 @@ After your instances are running and your inventory is configured, you can run t
 
 ```bash
 # Deploy the web app to EC2 instances labeled under 'webservers' in your inventory
-ansible-playbook -i inventory.ini src/playbooks/deploy_web.yml --private-key=/path/to/aws-key.pem -u ubuntu
+ansible-playbook -i <inventory_file> src/playbooks/deploy_web.yml --private-key=/path/to/aws-key.pem -u ubuntu
 
 # Perform database backups on EC2 instances labeled under 'db_servers'
-ansible-playbook -i inventory.ini src/playbooks/db_backup.yml --private-key=/path/to/aws-key.pem -u ubuntu
+ansible-playbook -i <inventory_file> src/playbooks/db_backup.yml --private-key=/path/to/aws-key.pem -u ubuntu
 
 # Run rolling security patches across all inventory instances
-ansible-playbook -i inventory.ini src/playbooks/patch_os.yml --private-key=/path/to/aws-key.pem -u ubuntu
+ansible-playbook -i <inventory_file> src/playbooks/patch_os.yml --private-key=/path/to/aws-key.pem -u ubuntu
 ```
