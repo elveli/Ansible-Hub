@@ -13,6 +13,7 @@
       amazon.aws.ec2_vpc_subnet:
         vpc_id: "{{ vpc.vpc.id }}"
         cidr: 10.0.1.0/24
+        az: us-east-1a
         region: us-east-1
         map_public: yes
       register: subnet
