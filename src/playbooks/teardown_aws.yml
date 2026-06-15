@@ -7,6 +7,7 @@
         state: absent
         filters:
           "tag:Role": "webserver"
+          "tag:Environment": "dev"
         region: us-east-1
 
     - name: Delete Key Pair
@@ -38,7 +39,7 @@
     - name: Delete Subnet
       amazon.aws.ec2_vpc_subnet:
         vpc_id: "{{ vpc_facts.vpcs[0].id }}"
-        cidr: 10.0.1.0/24
+        cidr: 172.16.1.0/24
         state: absent
         region: us-east-1
       when: vpc_facts.vpcs | length > 0
@@ -46,6 +47,6 @@
     - name: Delete VPC
       amazon.aws.ec2_vpc_net:
         name: my-vpc
-        cidr_block: 10.0.0.0/16
+        cidr_block: 172.16.0.0/16
         state: absent
         region: us-east-1
