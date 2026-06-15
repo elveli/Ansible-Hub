@@ -24,7 +24,7 @@
     - name: Gather VPC facts
       amazon.aws.ec2_vpc_net_info:
         filters:
-          "tag:Name": "my-vpc"
+          "tag:Name": "ansible-vpc"
         region: us-east-1
       register: vpc_facts
 
@@ -46,7 +46,7 @@
 
     - name: Delete VPC
       amazon.aws.ec2_vpc_net:
-        name: my-vpc
+        name: ansible-vpc
         cidr_block: 172.16.0.0/16
         state: absent
         region: us-east-1

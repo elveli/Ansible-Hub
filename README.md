@@ -117,6 +117,11 @@ For a detailed JSON output of all host configurations and AWS metadata:
 ansible-inventory -i aws_ec2.yml --list
 ```
 
+To list all AWS resources tagged with `ansible=true` using the AWS CLI:
+```bash
+aws resourcegroupstaggingapi get-resources --tag-filters Key=ansible,Values=true
+```
+
 ### Step 3: Configure and Deploy
 After your instances are running and your inventory is configured, you can run the configuration playbooks to install software, deploy code, or execute maintenance. 
 
