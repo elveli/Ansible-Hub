@@ -104,6 +104,19 @@ If you prefer a simpler setup without a dynamic plugin, you can manually create 
    ansible-playbook -i inventory.ini src/playbooks/deploy_web.yml --private-key=~/.ssh/my-key.pem -u ubuntu
    ```
 
+### Viewing Provisioned AWS Resources via CLI
+To list and inspect the AWS resources provisioned by Ansible directly from your terminal, you can use the `ansible-inventory` command alongside the dynamic inventory setup (`aws_ec2.yml`).
+
+To see a tree-like graph of your AWS EC2 instance groups:
+```bash
+ansible-inventory -i aws_ec2.yml --graph
+```
+
+For a detailed JSON output of all host configurations and AWS metadata:
+```bash
+ansible-inventory -i aws_ec2.yml --list
+```
+
 ### Step 3: Configure and Deploy
 After your instances are running and your inventory is configured, you can run the configuration playbooks to install software, deploy code, or execute maintenance. 
 
