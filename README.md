@@ -76,9 +76,14 @@ Instead of copying IP addresses manually, Ansible can fetch them directly from A
    ```
 
 **Option B: The Manual Way (Static Inventory File)**
-If you prefer a simpler setup without a dynamic plugin, you can manually copy the instance IP addresses shown in the **Ansible Hub UI > Inventory** tab.
+If you prefer a simpler setup without a dynamic plugin, you can manually create an inventory file using your instances' public IP addresses.
+
+**Where to find your target IP addresses:**
+- **Via this Dashboard:** Open the **Inventory (AWS)** tab in the Ansible Hub sidebar. Look at the "IP Address" column and copy the public (`pub`) IPs for your target instances.
+- **Via AWS Console:** Log into the AWS Management Console, navigate to **EC2 > Instances**, select your instances, and copy their "Public IPv4 address".
+
 1. Create a plain text file named `inventory.ini` in your project root.
-2. Group the IP addresses under bracketed labels matching your playbook target hosts (e.g., `webservers`, `db_servers`), like this:
+2. Group the IP addresses you just copied under bracketed labels matching your playbook target hosts (e.g., `webservers`, `db_servers`), like this:
    ```ini
    # Add your EC2 public IP addresses under their respective groups
    [webservers]
