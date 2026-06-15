@@ -68,6 +68,7 @@
         filters:
           "tag:Role": "webserver"
           "tag:Environment": "dev"
+          "vpc-id": "{{ vpc.vpc.id }}"
         tags:
           Role: webserver
           Environment: dev
