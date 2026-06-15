@@ -1,0 +1,26 @@
+- name: Database Backup to S3
+  hosts: db_servers
+  become: yes
+  vars:
+    s3_bucket: my-backup-bucket
+    backup_file: "/tmp/db_backup_{{ ansible_date_time.date }}.sql"
+  
+  tasks:
+    - name: Dump PostgreSQL database
+      postgresql_db:
+        name: my_database
+        state: dump
+        target: "{{ backup_file }}"
+      become_user: postgres
+
+    - name: Upload to S3
+      aws_s3:
+        bucket: "{{ s3_bucket }}"
+        object: "postgres/{{ backup_file | basename }}"
+        src: "{{ backup_file }}"
+        mode: put
+
+    - name: Clean up local backup file
+      file:
+        path: "{{ backup_file }}"
+        state: absent

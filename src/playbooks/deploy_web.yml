@@ -1,0 +1,21 @@
+- name: Deploy Web Application
+  hosts: webservers
+  become: yes
+  tasks:
+    - name: Ensure Node.js is installed
+      apt:
+        name: nodejs
+        state: present
+
+    - name: Copy application files
+      copy:
+        src: ./app
+        dest: /var/www/app
+
+    - name: Install dependencies
+      npm:
+        path: /var/www/app
+        state: present
+
+    - name: Start application
+      command: pm2 restart all
