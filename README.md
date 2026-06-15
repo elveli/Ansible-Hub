@@ -24,6 +24,17 @@ Ansible Hub is a web-based dashboard for simplifying Ansible playbook execution 
 - `src/data.ts`: Contains the mock static data that drives the dashboard (Playbooks, Instances, and Jobs data representations).
 - `src/types.ts`: Shared TypeScript types for the application entities.
 
-## Future Enhancements
-- Integration with an actual backend API for real-time AWS EC2 data fetching.
-- Connecting playbook execution directly to Ansible commands using a node backend.
+## Architecture Overview
+
+- **Frontend:** React application that provides the visualizations, interactive playbook runner, and inventory views.
+- **Backend:** A Node.js (Express) server executing real system automation tasks via `child_process`. It handles streaming Ansible execution logs and syncing live real-time metrics back to the dashboard.
+- **AWS Integration:** Directly connected via the AWS SDK (`@aws-sdk/client-ec2`).
+
+## Configuration
+
+To connect the live AWS Inventory service, provide your AWS environment variables in your server configuration (or `.env` file):
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+- `AWS_REGION`
+
+*(If `ansible-playbook` is not detected in your server's runtime block, the custom Ansible executor will fall back to executing a deterministic simulated playbook task stream.)*

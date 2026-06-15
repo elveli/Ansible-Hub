@@ -1,69 +1,80 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sidebar, TabId } from './components/Sidebar';
 import { DashboardView } from './components/DashboardView';
 import { PlaybooksView } from './components/PlaybooksView';
 import { InventoryView } from './components/InventoryView';
 import { JobsView } from './components/JobsView';
-import { MOCK_PLAYBOOKS, MOCK_INSTANCES, MOCK_JOBS } from './data';
-import { Job } from './types';
+import { MOCK_PLAYBOOKS } from './data';
+import { Job, Instance } from './types';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabId>('dashboard');
-  const [jobs, setJobs] = useState<Job[]>(MOCK_JOBS);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [instances, setInstances] = useState<Instance[]>([]);
+  const [loadingInstances, setLoadingInstances] = useState(false);
 
-  const handleRunPlaybook = (playbookId: string) => {
-    // Simulate a playbook run
-    const newJob: Job = {
-      id: `job-${Math.floor(Math.random() * 10000)}`,
-      playbookId,
-      status: 'running',
-      startedAt: new Date().toISOString(),
-      user: 'timo.e.kettunen',
-      logs: [
-        `PLAY [${MOCK_PLAYBOOKS.find(p => p.id === playbookId)?.name}] ********************`,
-        `TASK [Gathering Facts] *********************************************************`,
-      ],
-      targetCount: Math.floor(Math.random() * 5) + 1
-    };
+  const fetchJobs = async () => {
+    try {
+      const res = await fetch('/api/jobs');
+      const data = await res.json();
+      setJobs(data);
+    } catch (e) {
+      console.error('Failed to fetch jobs', e);
+    }
+  };
 
-    setJobs(prev => [newJob, ...prev]);
-    setActiveTab('jobs');
+  const fetchInstances = async () => {
+    setLoadingInstances(true);
+    try {
+      const res = await fetch('/api/instances');
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to fetch instances');
+      }
+      setInstances(data);
+    } catch (e) {
+      console.error('Failed to fetch instances', e);
+      // Optional: Handle error UI
+    } finally {
+      setLoadingInstances(false);
+    }
+  };
 
-    // Simulate logs appearing and job completion
-    setTimeout(() => {
-      setJobs(prev => prev.map(job => {
-        if (job.id === newJob.id) {
-          return {
-            ...job,
-            logs: [...job.logs, `ok: [target-1]`, `ok: [target-2]`]
-          };
-        }
-        return job;
-      }));
+  useEffect(() => {
+    fetchJobs();
+    fetchInstances();
+    
+    // Poll for jobs periodically
+    const interval = setInterval(() => {
+      fetchJobs();
     }, 2000);
 
-    setTimeout(() => {
-      setJobs(prev => prev.map(job => {
-        if (job.id === newJob.id) {
-          return {
-            ...job,
-            status: 'successful',
-            finishedAt: new Date().toISOString(),
-            duration: 5,
-            logs: [
-              ...job.logs, 
-              `TASK [Execute main logic] ******************************************************`,
-              `changed: [target-1]`,
-              `changed: [target-2]`,
-              `PLAY RECAP *********************************************************************`,
-              `target-1 : ok=2 changed=1 unreachable=0 failed=0`,
-              `target-2 : ok=2 changed=1 unreachable=0 failed=0`
-            ]
-          };
-        }
-        return job;
-      }));
-    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleRunPlaybook = async (playbookId: string) => {
+    const playbook = MOCK_PLAYBOOKS.find(p => p.id === playbookId);
+    if (!playbook) return;
+
+    try {
+      const res = await fetch(`/api/playbooks/${playbookId}/run`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ filename: playbook.filename })
+      });
+      if (res.ok) {
+        fetchJobs();
+        setActiveTab('jobs');
+      } else {
+        const errorData = await res.json();
+        alert('Failed to start run: ' + errorData.error);
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Failed to start run due to network error');
+    }
   };
 
   return (
@@ -75,7 +86,7 @@ export default function App() {
           {activeTab === 'dashboard' && (
             <DashboardView 
               jobs={jobs} 
-              instances={MOCK_INSTANCES} 
+              instances={instances} 
               playbooks={MOCK_PLAYBOOKS} 
             />
           )}
@@ -86,7 +97,7 @@ export default function App() {
             />
           )}
           {activeTab === 'inventory' && (
-            <InventoryView instances={MOCK_INSTANCES} />
+            <InventoryView instances={instances} onSync={fetchInstances} isLoading={loadingInstances} />
           )}
           {activeTab === 'jobs' && (
             <JobsView jobs={jobs} playbooks={MOCK_PLAYBOOKS} />
