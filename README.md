@@ -7,7 +7,7 @@ Ansible Hub is a web-based dashboard for simplifying Ansible playbook execution 
 - **Dashboard:** Provides an overview of your active automation metrics including total playbooks, active instances, running jobs, and a summary of recent activity and AWS inventory.
 - **Playbooks:** Easily catalog, view, and run Ansible playbooks. Sample playbooks can be found in the `src/playbooks` directory.
 - **Inventory (AWS):** Monitor your AWS EC2 instance inventory dynamically. It provides a clean tabular view of your instances, their states, IPs, and tags.
-- **Jobs History:** A comprehensive view to monitor playbooks execution statuses, durations, and detailed standard output logs for debugging and auditing.
+- **Jobs History:** A comprehensive dashboard to track and monitor the results of submitted Ansible playbooks (referred to as "jobs"). It provides execution statuses (Success/Fail), run durations, and detailed standard output logs for debugging and auditing deployed automation tasks.
 
 ## Project Structure
 
@@ -45,6 +45,26 @@ To successfully leverage the playbooks included in this repository and target yo
 
 ### Step 1: Provision Infrastructure (Bootstrapping)
 If you do not already have live EC2 instances running, you must provision them first. The deployment and maintenance playbooks (`deploy_web.yml`, `patch_os.yml`, `db_backup.yml`) will fail if their target hosts do not exist.
+
+#### AWS Provisioned Stack Diagram
+The `provision_aws.yml` playbook establishes the following infrastructure on your AWS account:
+
+```mermaid
+graph TD
+    subgraph AWS Cloud [us-east-1]
+        subgraph VPC [VPC: ansible-vpc <br> CIDR: 172.23.0.0/16]
+            subgraph Subnet [Public Subnet <br> CIDR: 172.23.1.0/24]
+                SG[Security Group <br> Allow Inbound SSH: Port 22]
+                
+                Inst1[EC2 Instance 1 <br> t3.medium <br> tag: webserver]
+                Inst2[EC2 Instance 2 <br> t3.medium <br> tag: webserver]
+                
+                SG --> Inst1
+                SG --> Inst2
+            end
+        end
+    end
+```
 
 Before running the provisioning playbook, ensure you have the `amazon.aws` collection installed locally. You can install it via standard `ansible-galaxy`:
 ```bash
