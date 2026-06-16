@@ -66,6 +66,8 @@ graph TD
     end
 ```
 
+**Note:** All provisioned AWS resources (VPC, Subnet, Security Group, Key Pair, and EC2 Instances) are automatically tagged with `ansible: "true"` for easier resource tracking and automated cleanup.
+
 Before running the provisioning playbook, ensure you have the `amazon.aws` collection installed locally. You can install it via standard `ansible-galaxy`:
 ```bash
 ansible-galaxy collection install amazon.aws
